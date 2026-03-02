@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tony Training">
+  <title>Tony's Hyrox Training</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+    body { overscroll-behavior: none; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background: #0a0a0a; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState, useEffect} = React;
+
+const C = '#ff6b35';
+
+const Icon = ({d, s=24}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" dangerouslySetInnerHTML={{__html: d}}/>;
+const CalIcon = ({s=24}) => <Icon s={s} d='<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'/>;
+const PlusIcon = ({s=24}) => <Icon s={s} d='<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'/>;
+const TrendIcon = ({s=24}) => <Icon s={s} d='<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>'/>;
+const ClockIcon = ({s=24}) => <Icon s={s} d='<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'/>;
+const FlameIcon = ({s=24}) => <Icon s={s} d='<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'/>;
+const InfoIcon = ({s=24}) => <Icon s={s} d='<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'/>;
+
+// ─── PROGRAM DATA ───────────────────────────────────────────────
+// Phase 1: Weeks 1-4 → Stuart Doubles (Mar 29, target 1:15:00)
+// Phase 2: Weeks 5-9 → Jade Mixed Doubles (May 2, target 1:15:00)
+// Structure: Mon=Hyrox class | Tue=Z2 run | Wed=Upper | Thu=Long run | Fri=Lower | Sat=Intervals/Tempo
+
+const phases = {
+  1: {phase:'Stuart Doubles — Final Block', dates:'Mar 2–8', focus:'Race sharpness + station speed', intensity:'Moderate-High', notes:'4 weeks out from Stuart doubles. Sharpen station power, dial run pace, maintain fitness. No new heavy loading.', race:'Stuart Doubles', startDate:'2026-03-02'},
+  2: {phase:'Stuart Doubles — Peak', dates:'Mar 9–15', focus:'Race pace + doubles sim', intensity:'High', notes:'2 weeks out. Race-pace running and a full doubles simulation with Stuart (Sat Mar 14). High intensity, controlled volume.', race:'Stuart Doubles', startDate:'2026-03-09'},
+  3: {phase:'Stuart Doubles — Taper', dates:'Mar 16–22', focus:'Freshen up, stay sharp', intensity:'Moderate', notes:'Taper week. Cut volume 30–40%, keep a few sharp efforts. Legs should feel springy by Thursday.', race:'Stuart Doubles', startDate:'2026-03-16'},
+  4: {phase:'🏆 RACE WEEK — Stuart Doubles', dates:'Mar 23–29', focus:'Race Day Mar 29 — Sub 1:15:00', intensity:'Taper → Race', notes:'Race week. Minimal training. Carb load Fri/Sat. Race Sunday with Stuart.', race:'Stuart Doubles', startDate:'2026-03-23'},
+  5: {phase:'Jade Build — Foundation', dates:'Mar 30–Apr 5', focus:'Recovery + rebase', intensity:'Low-Moderate', notes:'Post-Stuart race. Allow 3–4 days full recovery then ease back in. Begin mixed doubles prep with Jade.', race:'Jade Mixed Doubles', startDate:'2026-03-30'},
+  6: {phase:'Jade Build — Loading', dates:'Apr 6–12', focus:'Volume + station endurance', intensity:'Moderate-High', notes:'4 weeks out from Jade doubles. Rebuild training load, extend long runs, increase station reps.', race:'Jade Mixed Doubles', startDate:'2026-04-06'},
+  7: {phase:'Jade Build — Intensity', dates:'Apr 13–19', focus:'Compromised running + speed', intensity:'High', notes:'3 weeks out. Hard compromised running sessions. Race-pace intervals on Saturday. Push fitness ceiling.', race:'Jade Mixed Doubles', startDate:'2026-04-13'},
+  8: {phase:'Jade Doubles — Peak + Sim', dates:'Apr 20–26', focus:'🔥 Full sim with Jade (Apr 26)', intensity:'Very High', notes:'2 weeks out. Full mixed doubles simulation with Jade on Saturday. Dial in splits and transitions.', race:'Jade Mixed Doubles', startDate:'2026-04-20'},
+  9: {phase:'🏆 RACE WEEK — Jade Mixed Doubles', dates:'Apr 27–May 2', focus:'Race Day May 2 — Sub 1:15:00', intensity:'Taper → Race', notes:'Final taper. Light activation only. Race Friday May 2 with Jade.', race:'Jade Mixed Doubles', startDate:'2026-04-27'}
+};
+
+// HR zones for Tony: Max HR ~181, Age 39, Weight 88kg
+// Z1: <109 | Z2: 109-127 | Z3: 127-145 | Z4: 145-163 | Z5: 163-181
+// Run pace from 5k 24:33 → ~4:54/km 5k pace → Hyrox run target ~5:25-5:35/km
+
+const plans = {
+  1: [
+    {day:'Mon Mar 2', sessionType:'Hyrox Gym Class', duration:'60 mins', intensity:'Moderate-High', notes:'Fixed Monday class. Focus on STATION SPEED today — push SkiErg and Row harder than usual. Aim to dial in rhythm at 90% effort across all 8 stations. Note your weakest station for Friday lower work.\n\nKey focus: SkiErg pull power, Row drive phase, Wall Ball height consistency.'},
+    {day:'Tue Mar 3', sessionType:'Zone 2 Run', duration:'40 mins', intensity:'Low — Zone 2', notes:'Easy aerobic. 40min @ 6:00-6:15/km, HR 109-127 bpm. Conversational pace throughout. Do not let HR drift above 130. ~6.5km.\n\nThis is recovery from Monday — protect it.'},
+    {day:'Wed Mar 4', sessionType:'Upper Body Strength', duration:'55 mins', intensity:'Moderate', notes:'Warm-up: 5min row @ easy pace\n\nMain:\n• Pull-ups: 4x8-10 (weighted +5kg if comfortable)\n• DB Bench Press: 4x10 @ 28-32kg DBs\n• Single Arm DB Row: 4x12/arm @ 32-36kg\n• Push Press: 4x8 @ 50-55kg\n• Farmers Carry: 4x50m @ 32kg/hand\n\nCore finisher (2 rounds):\n• Ab Wheel: 12 reps\n• Pallof Press: 12/side\n• Dead Bugs: 20 reps\n• Hollow Hold: 30s'},
+    {day:'Thu Mar 5', sessionType:'Long Run', duration:'60 mins', intensity:'Moderate — Zone 2→3', notes:'Progressive long run. Start easy, build into it.\n\nKm 1-4: 6:00-6:10/km (HR 115-125)\nKm 5-7: 5:50-6:00/km (HR 125-135)\nKm 8-10: 5:40-5:50/km (HR 132-140)\n\nTotal: ~10km in 60 min. If HR spikes above 145, back off pace.\n\nKey: Build the habit of sustaining effort on fatigued legs — this is your biggest weakness to address.'},
+    {day:'Fri Mar 6', sessionType:'Lower Body Strength', duration:'55 mins', intensity:'Moderate', notes:'Warm-up: 5min bike + hip mobility\n\nMain:\n• Back Squat: 4x8 @ 70-80kg\n• Romanian Deadlift: 4x10 @ 70-75kg\n• Bulgarian Split Squat: 3x10/leg @ 20kg DBs\n• Sled Push: 5x25m @ race weight (150kg)\n• Sled Pull: 4x25m @ race weight (103kg)\n\nCore:\n• Russian Twists: 3x30\n• Dead Bugs: 3x20\n• Side Plank: 3x30s/side'},
+    {day:'Sat Mar 7', sessionType:'Tempo Run', duration:'50 mins', intensity:'High — Zone 3-4', notes:'Quality session. This is your Saturday sharpener.\n\nWarm-up: 10min @ 6:15/km\nMain: 4x1km @ 5:20-5:30/km (HR 140-155 bpm)\nRecovery: 90s walk/jog between reps\nCool-down: 10min easy\n\nTotal: ~8km. Target pace should feel "controlled hard" — you could maintain it but would not want to chat. This is just below Hyrox run pace.'},
+    {day:'Sun Mar 8', sessionType:'Active Recovery', duration:'20-30 mins', intensity:'Very Low — Zone 1', notes:'Walk, light bike, yoga, or foam rolling. HR under 110. Or complete rest.\n\nBig week next week — doubles sim on Saturday.'}
+  ],
+  2: [
+    {day:'Mon Mar 9', sessionType:'Hyrox Gym Class', duration:'60 mins', intensity:'High', notes:'PUSH this session — 2 weeks out from race. Treat the class like a near-race effort. Focus on station transitions and keeping run pace up between stations.\n\nPost-class note: How did compromised running feel? Which station wrecked your legs the most?'},
+    {day:'Tue Mar 10', sessionType:'Zone 2 Run', duration:'35 mins', intensity:'Low — Zone 2', notes:'Short and easy. 35min @ 6:00-6:15/km, HR 109-127 bpm. ~5.5km. Legs recovery from Monday. Do not push.'},
+    {day:'Wed Mar 11', sessionType:'Upper Body Strength — Race Specific', duration:'50 mins', intensity:'Moderate', notes:'Warm-up: 5min row\n\nMain (keep reps crisp, focus on power not grind):\n• Pull-ups: 4x8 (bodyweight or +2.5kg)\n• DB Bench: 3x10 @ 30kg DBs\n• SkiErg: 4x300m @ 90% effort (1:15-1:20 per rep), 2min rest\n• Farmers Carry: 4x75m @ 32kg/hand\n• Push Press: 3x8 @ 50kg\n\nCore (2 rounds):\n• Hollow Hold: 40s\n• Ab Wheel: 10\n• Pallof: 12/side'},
+    {day:'Wed Mar 11 — NOTE', sessionType:'', duration:'', intensity:'', notes:''},
+    {day:'Thu Mar 12', sessionType:'Long Run — Race Pace Finish', duration:'55 mins', intensity:'Moderate-High', notes:'Build run with race pace finish.\n\nKm 1-5: 6:00/km easy (HR 115-128)\nKm 6-8: 5:40/km moderate (HR 130-142)\nKm 9-10: 5:25-5:30/km (RACE PACE — HR 142-155)\n\nTotal: ~10km. The last 2km at race pace on tired legs is the key training stimulus. Hold form — don\'t shuffle.'},
+    {day:'Fri Mar 13', sessionType:'Lower Body Strength — Light', duration:'40 mins', intensity:'Low-Moderate', notes:'Reduced volume — save legs for Saturday sim.\n\n• Back Squat: 3x6 @ 65-70kg (lighter)\n• Sled Push: 4x25m @ race weight\n• Goblet Squat: 3x10 @ 28kg KB\n• Box Jumps: 3x6 (explosive activation)\n\nCore: 2 rounds only — Dead Bugs 20, Plank 45s, Russian Twists 25'},
+    {day:'Sat Mar 14', sessionType:'🤝 DOUBLES SIM WITH STUART', duration:'90-120 mins', intensity:'90% Race Effort', notes:'FULL HYROX DOUBLES SIMULATION @ 90% effort.\n\nWarm-up: 15min jog together + dynamic drills + 4x100m strides\n\nFull 8-station run:\n• SkiErg 1000m: Tony 600m (target 2:15-2:20), Stuart 400m\n• Run 1km each @ 5:25-5:30/km\n• Sled Push 50m: Split per agreed strategy\n• Run 1km each\n• Sled Pull 50m: Split 25m each\n• Run 1km each\n• Burpee BJ 80m: Split 40m each\n• Run 1km each\n• Row 1000m: Tony 600m (target 2:10-2:15), Stuart 400m\n• Run 1km each\n• Farmers 200m: Stuart 120m, Tony 80m\n• Run 1km each\n• Sandbag Lunges 100m: Split 50m each\n• Run 1km each\n• Wall Balls 100: Split 50 each\n\nTARGET TOTAL: ~1:17-1:20 (90% effort)\nRACE PACE TARGET: 1:15:00\n\nDebrief: Record ALL station times and run splits. What needs tightening in 2 weeks?'},
+    {day:'Sun Mar 15', sessionType:'REST', duration:'', intensity:'None', notes:'Full rest. Reflect on sim. Hydration 3L+. Sleep 8+ hrs. Taper starts Monday.'}
+  ],
+  3: [
+    {day:'Mon Mar 16', sessionType:'Hyrox Gym Class — Controlled', duration:'60 mins', intensity:'Moderate', notes:'TAPER WEEK. Attend class but work at 70-75% effort. No hero moments. Focus on technique — perfect SkiErg rhythm, smooth sled form, wall ball consistency. Leave class feeling fresh.'},
+    {day:'Tue Mar 17', sessionType:'Zone 2 Run — Short', duration:'30 mins', intensity:'Low — Zone 2', notes:'30min @ 6:10-6:20/km, HR 109-120. ~4.5km. Easy, easy, easy. Legs should feel light.'},
+    {day:'Wed Mar 18', sessionType:'Upper — Activation Only', duration:'35 mins', intensity:'Low', notes:'Movement quality, not loading.\n\n• Pull-ups: 3x6 bodyweight\n• DB Row: 3x10 @ 24kg (lighter)\n• Push-ups: 3x15\n• Farmers Carry: 3x50m @ 26kg/hand\n\nCore (2 rounds):\n• Plank: 45s\n• Dead Bugs: 16\n• Side Plank: 30s/side'},
+    {day:'Thu Mar 19', sessionType:'Long Run — Shakeout Style', duration:'40 mins', intensity:'Low-Moderate', notes:'Controlled progressive. No heroics.\n\nKm 1-4: 6:10/km easy\nKm 5-6: 5:40/km (race pace feel, just 2km)\nKm 7: Easy cool-down\n\nTotal: ~7km. Should feel crisp and easy. If tired, keep it all at 6:10.'},
+    {day:'Fri Mar 20', sessionType:'Lower — Very Light', duration:'25 mins', intensity:'Very Low', notes:'Activation only.\n\n• Goblet Squat: 3x8 @ 24kg KB\n• Sled Push: 3x25m @ 130kg (feel the movement — light)\n• Leg Press: 3x10 @ moderate weight\n\nNo heavy lifting. Legs must be fresh Sunday.'},
+    {day:'Sat Mar 21', sessionType:'Strides + Activation', duration:'20 mins', intensity:'Low', notes:'Jog 10min @ 6:20/km then 6x100m strides building to 85% effort.\n\nLegs should feel like coiled springs. Check race kit today.\n\nConfirm race plan and logistics with Stuart.'},
+    {day:'Sun Mar 22', sessionType:'Active Recovery', duration:'20 mins', intensity:'Very Low — Zone 1', notes:'Walk 20min or complete rest. Hydrate 3L. Early bed.\n\n⚡ ONE WEEK TO RACE.'}
+  ],
+  4: [
+    {day:'Mon Mar 23', sessionType:'Hyrox Class — Light', duration:'60 mins', intensity:'Low', notes:'RACE WEEK. Attend class but treat it as a movement session only. 60% effort max. NO chasing reps or intensity. Use it to stay loose and familiar with equipment.\n\nMental note: visualise smooth transitions and your run splits.'},
+    {day:'Tue Mar 24', sessionType:'Easy Walk/Jog', duration:'15 mins', intensity:'Very Low', notes:'10-15min walk or gentle jog @ 6:30/km. Blood flow only. HR under 120.'},
+    {day:'Wed Mar 25', sessionType:'REST', duration:'', intensity:'None', notes:'Complete rest. Hydration 3-4L. Nutrition: carb-rich meals begin today. Sleep 8+ hours.'},
+    {day:'Thu Mar 26', sessionType:'Final Shakeout', duration:'15 mins', intensity:'Very Low', notes:'Jog 10min @ 6:30/km + 3x80m strides building to race pace feel.\n\nLegs should feel alive and powerful. If anything feels off, skip and just walk.'},
+    {day:'Fri Mar 27', sessionType:'REST — Carb Load', duration:'', intensity:'None', notes:'COMPLETE REST. Walk 10min max.\n\nCarb load: pasta/rice with protein at every meal. Hydrate 4L. Lay out all race kit tonight:\n• Bib, shoes, socks, shorts, shirt\n• Watch charged, gels ready\n\nConfirm meet time and warm-up plan with Stuart.'},
+    {day:'Sat Mar 28', sessionType:'REST — Race Eve', duration:'', intensity:'None', notes:'ZERO activity. Final carb load dinner (6pm). Early bed by 9pm.\n\nRe-read race strategy. Visualise every station. YOU ARE READY.'},
+    {day:'Sun Mar 29', sessionType:'🏆 RACE DAY — Stuart Doubles', duration:'Target: Sub 1:15:00', intensity:'RACE EFFORT', notes:'THIS IS IT. 🔥\n\nPRE-RACE:\n• Wake 4hrs before start\n• Breakfast: Porridge + banana + coffee\n• Arrive venue 90min early\n• Warm-up with Stuart: 10min jog, full dynamic, 4x100m strides\n• Gel 15min before start\n\nRACE:\n• Execute the plan you rehearsed in simulation\n• Run pace: 5:20-5:25/km every km — hold it\n• Stations 1-4: controlled confidence\n• Stations 5-8: everything you have\n• Call switches clearly, encourage Stuart\n\n🎯 TARGET: SUB 1:15:00\n\nLeave nothing on the floor. 💪'}
+  ],
+  5: [
+    {day:'Mon Mar 30', sessionType:'REST — Post Race', duration:'', intensity:'None', notes:'FULL REST. You just raced. Hydrate 4L+. Sleep 9+ hours. Eat protein + carbs for recovery.\n\nNo Hyrox class this week. Body needs to repair.'},
+    {day:'Tue Mar 31', sessionType:'REST or Gentle Walk', duration:'15 mins', intensity:'Very Low — Zone 1', notes:'15min walk maximum. HR under 115. Check in with how body feels. Some soreness is normal — if joints or muscles feel sharp, add another full rest day.'},
+    {day:'Wed Apr 1', sessionType:'Easy Return Run', duration:'25 mins', intensity:'Low — Zone 1-2', notes:'First post-race run. Very easy. 25min @ 6:20-6:30/km, HR under 125. Total ~4km.\n\nStop immediately if anything feels wrong. This is about blood flow, not fitness.'},
+    {day:'Thu Apr 2', sessionType:'Easy Long Run', duration:'40 mins', intensity:'Low — Zone 2', notes:'Controlled return to long run. 40min @ 6:05-6:15/km, HR 109-127.\n\nTotal: ~6.5km. Monitor HR — if it\'s elevated above normal at easy pace, your body is still recovering. Back off.'},
+    {day:'Fri Apr 3', sessionType:'Lower Body — Light Return', duration:'40 mins', intensity:'Low-Moderate', notes:'Ease back into strength.\n\n• Goblet Squat: 3x10 @ 28kg KB\n• Romanian Deadlift: 3x10 @ 60kg\n• Walking Lunges: 3x20m @ 16kg DBs\n• Sled Push: 3x25m @ 130kg (sub-race weight)\n\nCore: 2 rounds — Plank 45s, Dead Bugs 20, Russian Twists 25\n\nThis is movement quality week — no max effort.'},
+    {day:'Sat Apr 4', sessionType:'Easy Tempo — Return', duration:'40 mins', intensity:'Moderate — Zone 3', notes:'Gentle return to quality work.\n\nWarm-up: 10min easy\nMain: 3x1km @ 5:35-5:45/km (just below race pace, HR 130-145)\nRecovery: 90s jog\nCool-down: 10min\n\nTotal: ~7.5km. Should feel comfortable, not maximal. You\'re resetting baseline, not proving fitness.'},
+    {day:'Sun Apr 5', sessionType:'Active Recovery', duration:'20 mins', intensity:'Very Low', notes:'Walk or light bike. Reflect on Stuart doubles performance.\n\n📋 NOTE FOR JADE DOUBLES:\nBegin thinking about mixed doubles strategy. In Hyrox mixed doubles, splits are flexible — discuss with Jade what plays to both your strengths. Update your strategy notes here.\n\nJade\'s solo Hyrox experience = she knows the stations. Build a plan together over next 4 weeks.'}
+  ],
+  6: [
+    {day:'Mon Apr 6', sessionType:'Hyrox Gym Class', duration:'60 mins', intensity:'Moderate-High', notes:'Back to full Monday class. 80-85% effort. This week begins the Jade doubles build.\n\nFocus: Station endurance — can you maintain form on station 7 and 8 after full fatigue? Note your wall ball pace drop from fresh vs fatigued.'},
+    {day:'Tue Apr 7', sessionType:'Zone 2 Run', duration:'45 mins', intensity:'Low — Zone 2', notes:'45min @ 5:55-6:10/km, HR 109-127. ~7.5km. Building duration compared to recovery week. Conversational pace throughout.'},
+    {day:'Wed Apr 8', sessionType:'Upper Body Strength', duration:'55 mins', intensity:'Moderate-High', notes:'Warm-up: 5min row\n\nMain:\n• Pull-ups: 4x10 (+5kg weighted)\n• DB Bench Press: 4x10 @ 30-32kg DBs\n• Single Arm Row: 4x12/arm @ 34-36kg\n• Push Press: 4x8 @ 52.5-55kg\n• SkiErg: 4x400m @ 85-90% (1:38-1:45 per rep), 90s rest\n• Farmers Carry: 4x75m @ 32kg/hand\n\nCore (3 rounds):\n• Ab Wheel: 12\n• Pallof: 12/side\n• Hollow Hold: 35s'},
+    {day:'Thu Apr 9', sessionType:'Long Run — Progressive', duration:'65 mins', intensity:'Moderate — Zone 2-3', notes:'Progressive effort — address the long run fade.\n\nKm 1-4: 6:05-6:10/km (HR 115-125)\nKm 5-8: 5:55-6:00/km (HR 125-135)\nKm 9-11: 5:45-5:50/km (HR 133-142)\n\nTotal: ~11km in 65min.\n\n⚡ KEY FOCUS: Do not let pace drop in final 3km. This is the exact scenario you need to fix. Negative split or even split only.'},
+    {day:'Fri Apr 10', sessionType:'Lower Body Strength', duration:'55 mins', intensity:'Moderate', notes:'Warm-up: 5min bike + hip mobility\n\nMain:\n• Back Squat: 4x8 @ 75-82kg\n• Romanian Deadlift: 4x10 @ 72-77kg\n• Bulgarian Split Squat: 3x10/leg @ 22kg DBs\n• Sled Push: 5x25m @ race weight (152kg)\n• Sled Pull: 4x25m @ race weight\n\nCore:\n• Russian Twists: 3x30\n• Dead Bugs: 3x20\n• Side Plank: 3x35s/side'},
+    {day:'Sat Apr 11', sessionType:'Intervals', duration:'55 mins', intensity:'High — Zone 4', notes:'Quality speed work.\n\nWarm-up: 10min easy\nMain: 6x800m @ 5:10-5:20/km (HR 145-160)\nRecovery: 90s walk between reps\nCool-down: 10min\n\nTotal: ~9.5km. Reps should feel hard but controlled — you could manage two more if you had to. This builds the top end speed that carries over to Hyrox run pace.'},
+    {day:'Sun Apr 12', sessionType:'Active Recovery', duration:'25 mins', intensity:'Very Low', notes:'Walk, light bike, or yoga. HR under 110. Begin planning station splits with Jade if not already done.'}
+  ],
+  7: [
+    {day:'Mon Apr 13', sessionType:'Hyrox Gym Class', duration:'60 mins', intensity:'High', notes:'HARD Monday. Treat this class as near-race effort. Track time on key stations. Push SkiErg and Row especially — these are your power stations.\n\nNote any run splits between stations if the class format allows.'},
+    {day:'Tue Apr 14', sessionType:'Zone 2 Run', duration:'45 mins', intensity:'Low — Zone 2', notes:'45min @ 6:00-6:10/km, HR 109-127. ~7.5km. Pure Zone 2 — protect this.'},
+    {day:'Wed Apr 15', sessionType:'Compromised Running — SkiErg Focus', duration:'55 mins', intensity:'High — Zone 4', notes:'COMPROMISED RUNNING SESSION #1 — SkiErg to Run.\n\nWarm-up: 10min easy run\n\n4 rounds:\n• SkiErg 500m @ 90-95% (target 1:58-2:03)\n• Immediately run 1km @ 5:25-5:35/km (legs will be heavy)\n• 2min 30s walk recovery\n\nTotal: 2000m SkiErg + 4km running on fatigued legs.\n\n⚡ This is the most race-specific training you can do. Your aerobic system is working hard while your upper body is smoked. This is exactly what Hyrox stations 1 and 5 feel like.'},
+    {day:'Thu Apr 16', sessionType:'Long Run — Race Pace Segments', duration:'65 mins', intensity:'Moderate-High', notes:'Structured long run with race-pace efforts in the middle.\n\nKm 1-3: 6:05/km easy (HR 115-125)\nKm 4-7: 5:25-5:30/km RACE PACE (HR 140-155)\nKm 8-9: 5:55/km recovery\nKm 10-11: 5:25/km race pace again\nKm 12: 6:00/km cool-down\n\nTotal: ~12km. KEY SESSION — you must hold race pace after already being tired. This directly addresses your long run fade.'},
+    {day:'Fri Apr 17', sessionType:'Lower Body Strength', duration:'55 mins', intensity:'Moderate', notes:'Warm-up: 5min bike\n\nMain:\n• Back Squat: 4x6 @ 80-87kg (heavier)\n• Romanian Deadlift: 4x8 @ 77-82kg\n• Walking Lunges: 4x25m @ 22kg DBs\n• Sled Push: 5x25m @ race weight\n• Sled Pull: 5x25m @ race weight\n• Box Jumps: 3x6 @ 50cm (explosive finish)\n\nCore:\n• Ab Wheel: 3x12\n• Russian Twists: 3x35\n• Dead Bugs: 3x20'},
+    {day:'Sat Apr 18', sessionType:'Tempo Run — Race Pace', duration:'50 mins', intensity:'High — Zone 4', notes:'Race pace tempo.\n\nWarm-up: 10min easy\nMain: 5km @ 5:15-5:25/km (HR 145-158 — this is Hyrox run pace)\nCool-down: 10min\n\nTotal: ~8km. The 5km block should feel like race effort — it won\'t be comfortable but should be controllable. If you need to stop, you\'ve gone too fast.'},
+    {day:'Sun Apr 19', sessionType:'REST', duration:'', intensity:'None', notes:'Full rest. Hardest week of the Jade block. Hydrate 3L+, sleep 8+ hours. Recovery is training.'}
+  ],
+  8: [
+    {day:'Mon Apr 20', sessionType:'Hyrox Gym Class', duration:'60 mins', intensity:'Moderate-High', notes:'Good effort class — 80-85%. Use it as a final systems check before Saturday simulation.\n\nMental focus: practice clean transitions, efficient handoff zones, consistent run pace. Sim is Saturday with Jade.'},
+    {day:'Tue Apr 21', sessionType:'Zone 2 Run', duration:'35 mins', intensity:'Low — Zone 2', notes:'Short and easy — 35min @ 6:05-6:15/km, HR 109-125. ~5.5km. Freshen legs before sim Saturday.'},
+    {day:'Wed Apr 22', sessionType:'Upper — Race Specific, Reduced', duration:'45 mins', intensity:'Moderate', notes:'Reduced volume — save energy for simulation.\n\n• Pull-ups: 3x8 bodyweight\n• SkiErg: 3x400m @ 90% (1:36-1:42 per rep)\n• Farmers Carry: 3x75m @ 32kg/hand\n• Push Press: 3x8 @ 50kg\n\nCore (2 rounds only):\n• Hollow Hold: 40s\n• Ab Wheel: 10\n• Dead Bugs: 20'},
+    {day:'Thu Apr 23', sessionType:'Long Run — Final Build', duration:'60 mins', intensity:'Moderate — Zone 2-3', notes:'Last long run before taper.\n\nKm 1-5: 6:00-6:05/km (HR 115-128)\nKm 6-9: 5:45-5:50/km (HR 130-142)\nKm 10: 5:30/km (push the final km)\n\nTotal: ~10km. Strong finish — do not fade on the last kilometre.'},
+    {day:'Fri Apr 24', sessionType:'Lower — Activation Only', duration:'30 mins', intensity:'Low', notes:'Light session — save everything for Sat sim.\n\n• Goblet Squat: 3x8 @ 24kg KB\n• Sled Push: 3x25m @ 130kg (light)\n• Box Jumps: 3x5 @ 40cm\n\nCore: 1 round — Plank 45s, Dead Bugs 15, Side Plank 30s\n\nDone. Eat well tonight. Carb-focused dinner.'},
+    {day:'Sat Apr 25', sessionType:'🔥 DOUBLES SIM WITH JADE', duration:'90-120 mins', intensity:'90-95% Race Effort', notes:'FULL MIXED DOUBLES SIMULATION WITH JADE @ 90-95% effort.\n\nWarm-up: 15min together + full dynamic + 4x100m strides\n\n⚡ MIXED DOUBLES RULES: Woman completes 60% of station work, Man 40%.\nJade has a 1:19 doubles PR — she knows this format. Let her lead the strategy on splits.\n\nFull 8-station run-through at agreed splits.\nRun pace: Both @ 5:25-5:30/km\n\n30min debrief:\n• Record ALL station times and run splits\n• Transitions smooth?\n• Any adjustments for race day?\n• Jade leads the debrief — defer to her doubles experience'},
+    {day:'Sun Apr 26', sessionType:'REST', duration:'', intensity:'None', notes:'Full rest. Last hard effort done. Taper begins tomorrow.\n\nHydrate 4L. Sleep 9+ hours. Review sim data with Jade.'}
+  ],
+  9: [
+    {day:'Mon Apr 27', sessionType:'Hyrox Class — Very Light', duration:'60 mins', intensity:'Low', notes:'FINAL TAPER WEEK. Attend class at 60% maximum. Movement only — no intensity, no competition with yourself or anyone else. Feel the stations but leave nothing here.'},
+    {day:'Tue Apr 28', sessionType:'Easy Shakeout', duration:'20 mins', intensity:'Very Low — Zone 1-2', notes:'15-20min jog @ 6:20/km, HR under 125. ~3km. Just moving legs. Add 4x80m strides at the end.'},
+    {day:'Wed Apr 29', sessionType:'REST', duration:'', intensity:'None', notes:'Complete rest. Hydration 3-4L. Carb loading starts today — rice, pasta, oats at every meal. Sleep 8+ hours.'},
+    {day:'Thu Apr 30', sessionType:'Final Shakeout + Strides', duration:'15 mins', intensity:'Very Low', notes:'Jog 10min @ 6:30/km + 3x80m strides building to race pace feel.\n\nLegs should feel like springs. If they feel flat, have an extra gel and sleep more tonight.'},
+    {day:'Fri May 1', sessionType:'REST — Race Eve', duration:'', intensity:'None', notes:'ZERO activity.\n\nCarb load dinner at 6pm. Lay out all race kit:\n• Bib, shoes (race-tested), socks, shorts, shirt\n• Watch charged\n• Gels ready\n\nConfirm meet time and warm-up plan with Jade.\nSet 3 alarms. Bed by 9pm.\n\nYOU ARE READY.'},
+    {day:'Sat May 2', sessionType:'🏆 RACE DAY — Jade Mixed Doubles', duration:'Target: Sub 1:15:00', intensity:'RACE EFFORT', notes:'THIS IS IT. 🔥\n\nPRE-RACE:\n• Wake 4hrs before start\n• Breakfast: Porridge + banana + coffee\n• Arrive venue 90min early\n• Warm-up with Jade: 10min progressive jog, full dynamic drills, 4x100m strides, light station touches if permitted\n• Gel 15min before start\n\nRACE:\n• Execute the plan you rehearsed in simulation\n• Jade leads on transitions — she has the doubles experience\n• Run strong between every station — this is where your training shows\n• When it hurts on stations 6-8: the compromised running sessions were built for exactly this moment\n\n🎯 TARGET: SUB 1:15:00\n\nTrust your training. Trust your partner. Leave nothing on the floor. 💪🔥'},
+    {day:'Sun May 3', sessionType:'REST — Celebrate', duration:'', intensity:'None', notes:'TWO RACES DONE. 🎉\n\nFull rest. Hydrate. Recover. Celebrate with Jade and your team.\n\nYou completed:\n✅ Hyrox Doubles — Stuart (Mar 29)\n✅ Hyrox Mixed Doubles — Jade (May 2)\n\nWhat\'s next? 🏆'}
+  ]
+};
+
+// ─── JADE PROFILE ────────────────────────────────────────────────
+// Solo: 1:27 | Mixed doubles PR: 1:19
+// Mixed doubles rules: Woman = 60% station work, Man = 40%
+// Jade carries more stations — plays to her experience
+// Joint target: Sub 1:15:00
+// Jade run pace (from 1:27 solo): ~5:30-5:40/km Hyrox runs
+// Tony run pace: 5:20-5:30/km → both should be comfortable at 5:25-5:30/km together
+
+// ─── HEART RATE REFERENCE ─────────────────────────────────────────
+const hrZones = [
+  {zone:'Z1', label:'Recovery', range:'<109 bpm', color:'#888', pct:'<60%'},
+  {zone:'Z2', label:'Aerobic Base', range:'109-127 bpm', color:'#4ade80', pct:'60-70%'},
+  {zone:'Z3', label:'Tempo', range:'127-145 bpm', color:'#facc15', pct:'70-80%'},
+  {zone:'Z4', label:'Threshold', range:'145-163 bpm', color:'#fb923c', pct:'80-90%'},
+  {zone:'Z5', label:'Race / VO2', range:'163-181 bpm', color:'#f43f5e', pct:'90-100%'}
+];
+
+// ─── COMPONENTS ──────────────────────────────────────────────────
+function WorkoutCard({day, isComplete, onToggle}) {
+  const [open, setOpen] = useState(false);
+  if (!day || !day.sessionType) return null;
+  const isRest = day.intensity === 'None' || day.sessionType === 'REST';
+  const isRace = day.sessionType.includes('RACE') || day.sessionType.includes('🏆');
+  const isSim = day.sessionType.includes('DOUBLES SIM') || day.sessionType.includes('🤝') || day.sessionType.includes('🔥');
+
+  const borderCol = isComplete ? C : isRace ? '#ffd700' : isSim ? '#a855f7' : '#333';
+
+  return (
+    <div className="border-2 rounded-lg p-4 transition" style={{backgroundColor:'#1a1a1a', borderColor: borderCol}}>
+      <div className="flex items-start gap-3">
+        <button onClick={onToggle} className="flex-shrink-0 mt-1 w-6 h-6 rounded border-2 flex items-center justify-center"
+          style={isComplete ? {backgroundColor: C, borderColor: C} : {borderColor: C}}>
+          {isComplete && <span style={{color:'#fff', fontSize:'12px'}}>✓</span>}
+        </button>
+        <div className="flex-1">
+          <div className="flex items-start justify-between mb-1">
+            <div>
+              <div className="font-bold text-white">{day.day}</div>
+              <div className="text-sm" style={{color: isRace ? '#ffd700' : isSim ? '#a855f7' : '#999'}}>{day.sessionType}</div>
+            </div>
+            {day.duration && <div className="text-xs text-gray-500 ml-2 flex-shrink-0">{day.duration}</div>}
+          </div>
+          {!isRest && (
+            <div className="mt-2 mb-2">
+              <span className="text-xs px-2 py-1 rounded-full" style={{backgroundColor:'#2a2a2a', color: isRace ? '#ffd700' : C}}>{day.intensity}</span>
+            </div>
+          )}
+          {day.notes && (
+            <button onClick={() => setOpen(!open)} className="text-xs font-semibold mt-1" style={{color: C}}>
+              {open ? '▼ Hide Details' : '▶ Show Full Workout'}
+            </button>
+          )}
+          {open && day.notes && (
+            <div className="mt-3 p-3 rounded text-sm text-gray-200 whitespace-pre-line border max-h-96 overflow-y-auto"
+              style={{backgroundColor:'#0a0a0a', borderColor:'#333'}}>
+              {day.notes}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HRReference() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-2 rounded-lg mb-4" style={{borderColor:'#333', backgroundColor:'#1a1a1a'}}>
+      <button onClick={() => setOpen(!open)} className="w-full p-3 flex items-center justify-between text-sm font-semibold text-gray-300">
+        <span><InfoIcon s={16} style={{display:'inline', marginRight:'6px'}}/>HR Zones (Max 181 bpm — Age 39)</span>
+        <span style={{color: C}}>{open ? '▼' : '▶'}</span>
+      </button>
+      {open && (
+        <div className="px-3 pb-3 space-y-2">
+          {hrZones.map(z => (
+            <div key={z.zone} className="flex items-center gap-3 text-sm">
+              <span className="font-bold w-6" style={{color: z.color}}>{z.zone}</span>
+              <span className="text-gray-400 w-28">{z.label}</span>
+              <span className="text-white font-mono">{z.range}</span>
+              <span className="text-gray-500 text-xs">{z.pct}</span>
+            </div>
+          ))}
+          <div className="mt-2 pt-2 border-t text-xs text-gray-500" style={{borderColor:'#333'}}>
+            5k best: 24:33 → Hyrox run target: 5:20-5:30/km
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function App() {
+  const [tab, setTab] = useState('plan');
+  const [week, setWeek] = useState(1);
+  const [comp, setComp] = useState({});
+  const [workouts, setWorkouts] = useState([]);
+  const [showLog, setShowLog] = useState(false);
+  const [logData, setLogData] = useState({date: new Date().toISOString().split('T')[0], type:'', duration:'', notes:''});
+
+  useEffect(() => {
+    try {
+      setComp(JSON.parse(localStorage.getItem('tony26_comp') || '{}'));
+      setWorkouts(JSON.parse(localStorage.getItem('tony26_workouts') || '[]'));
+    } catch(e) {}
+  }, []);
+
+  useEffect(() => { localStorage.setItem('tony26_comp', JSON.stringify(comp)); }, [comp]);
+  useEffect(() => { localStorage.setItem('tony26_workouts', JSON.stringify(workouts)); }, [workouts]);
+
+  const toggleComp = (w, i) => setComp(p => ({...p, [`${w}-${i}`]: !p[`${w}-${i}`]}));
+  const isComp = (w, i) => !!comp[`${w}-${i}`];
+
+  const getCompletion = (w) => {
+    const plan = plans[w];
+    if (!plan) return {completed:0, total:0, pct:0};
+    const filtered = plan.filter(d => d.sessionType);
+    const c = filtered.filter((_, i) => isComp(w, i)).length;
+    return {completed: c, total: filtered.length, pct: filtered.length ? Math.round(c/filtered.length*100) : 0};
+  };
+
+  const totalCompleted = Object.values(comp).filter(Boolean).length;
+  const currentPhase = phases[week];
+  const currentPlan = (plans[week] || []).filter(d => d.sessionType);
+  const isPhase1 = week <= 4;
+
+  const logWorkout = () => {
+    if (!logData.type) return;
+    setWorkouts([{...logData, id: Date.now()}, ...workouts]);
+    setLogData({date: new Date().toISOString().split('T')[0], type:'', duration:'', notes:''});
+    setShowLog(false);
+  };
+
+  return (
+    <div className="min-h-screen p-4" style={{background:'#0a0a0a'}}>
+      <div className="max-w-2xl mx-auto pb-20">
+
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <FlameIcon s={40} style={{color: C}}/>
+            <div>
+              <h1 className="text-3xl font-bold" style={{color: C}}>Tony's Training</h1>
+              <p className="text-sm text-gray-400">Hyrox Doubles 2026 — 9-Week Program</p>
+            </div>
+          </div>
+
+          {/* Athlete card */}
+          <div className="border-2 rounded-lg p-4 mb-4" style={{backgroundColor:'#1a1a1a', borderColor:'#333'}}>
+            <div className="grid grid-cols-3 gap-3 text-sm">
+              <div><div className="text-gray-500 text-xs">Age / Weight</div><div className="text-white font-semibold">39 / 88kg</div></div>
+              <div><div className="text-gray-500 text-xs">5k Best</div><div className="font-semibold" style={{color: C}}>24:33</div></div>
+              <div><div className="text-gray-500 text-xs">Max HR</div><div className="text-white font-semibold">181 bpm</div></div>
+            </div>
+          </div>
+
+          {/* Race targets */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="border-2 rounded-lg p-3" style={{borderColor: C, backgroundColor:'#1a1a1a'}}>
+              <div className="text-xs text-gray-400 mb-1">Race 1 — Mar 29</div>
+              <div className="font-bold text-white">Stuart Doubles</div>
+              <div className="text-lg font-bold" style={{color: C}}>Sub 1:15:00</div>
+            </div>
+            <div className="border-2 rounded-lg p-3" style={{borderColor:'#a855f7', backgroundColor:'#1a1a1a'}}>
+              <div className="text-xs text-gray-400 mb-1">Race 2 — May 2</div>
+              <div className="font-bold text-white">Jade Mixed Doubles</div>
+              <div className="text-lg font-bold" style={{color:'#a855f7'}}>Sub 1:15:00</div>
+              <div className="text-xs text-gray-500 mt-1">Jade: Solo 1:27 · Doubles PR 1:19</div>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="border-2 rounded-lg p-3 text-center" style={{backgroundColor:'#1a1a1a', borderColor:'#333'}}>
+              <div className="text-2xl font-bold" style={{color: C}}>{totalCompleted}</div>
+              <div className="text-xs text-gray-400">Sessions Done</div>
+            </div>
+            <div className="border-2 rounded-lg p-3 text-center" style={{backgroundColor:'#1a1a1a', borderColor:'#333'}}>
+              <div className="text-2xl font-bold" style={{color: C}}>{getCompletion(week).pct}%</div>
+              <div className="text-xs text-gray-400">This Week</div>
+            </div>
+            <div className="border-2 rounded-lg p-3 text-center" style={{backgroundColor:'#1a1a1a', borderColor:'#333'}}>
+              <div className="text-2xl font-bold" style={{color: C}}>{9 - week + 1}</div>
+              <div className="text-xs text-gray-400">Weeks Left</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-5 border-b-2" style={{borderColor:'#333'}}>
+          {[['plan', CalIcon, 'Plan'], ['log', PlusIcon, 'Log'], ['history', TrendIcon, 'History']].map(([t, I, label]) => (
+            <button key={t} onClick={() => setTab(t)}
+              className={`px-5 py-3 font-semibold ${tab===t ? 'border-b-2' : ''}`}
+              style={tab===t ? {borderBottomColor: C, color: C} : {color:'#666'}}>
+              <I s={16} style={{display:'inline', marginRight:'5px'}}/>{label}
+            </button>
+          ))}
+        </div>
+
+        {/* Plan Tab */}
+        {tab === 'plan' && (
+          <div>
+            <HRReference/>
+
+            {/* Phase divider */}
+            <div className="flex gap-2 mb-4">
+              <button onClick={() => setWeek(1)}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold border-2"
+                style={isPhase1 ? {backgroundColor: C, borderColor: C, color:'#000'} : {backgroundColor:'#1a1a1a', borderColor:'#333', color:'#666'}}>
+                Phase 1: Stuart (Mar 29)
+              </button>
+              <button onClick={() => setWeek(5)}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold border-2"
+                style={!isPhase1 ? {backgroundColor:'#a855f7', borderColor:'#a855f7', color:'#fff'} : {backgroundColor:'#1a1a1a', borderColor:'#333', color:'#666'}}>
+                Phase 2: Jade (May 2)
+              </button>
+            </div>
+
+            {/* Week selector */}
+            <div className="flex items-center gap-2 mb-5">
+              <button onClick={() => setWeek(Math.max(1, week-1))} disabled={week===1}
+                className="px-3 py-2 border-2 rounded text-white disabled:opacity-30"
+                style={{backgroundColor:'#1a1a1a', borderColor:'#333'}}>←</button>
+              <div className="flex-1 flex gap-2 overflow-x-auto pb-1">
+                {[...Array(9)].map((_, i) => {
+                  const w = i+1;
+                  const c = getCompletion(w);
+                  const isRaceWk = w === 4 || w === 9;
+                  const isSimWk = w === 2 || w === 8;
+                  const label = isRaceWk ? '🏆' : isSimWk ? '🤝' : '';
+                  return (
+                    <button key={w} onClick={() => setWeek(w)}
+                      className="flex-shrink-0 px-3 py-2 rounded-lg font-semibold text-sm border-2"
+                      style={week===w ? {backgroundColor: C, borderColor: C, color:'#000'} : {backgroundColor:'#1a1a1a', borderColor:'#333', color:'#fff'}}>
+                      <div>{label}W{w}</div>
+                      {c.completed > 0 && <div className="text-xs opacity-70">{c.pct}%</div>}
+                    </button>
+                  );
+                })}
+              </div>
+              <button onClick={() => setWeek(Math.min(9, week+1))} disabled={week===9}
+                className="px-3 py-2 border-2 rounded text-white disabled:opacity-30"
+                style={{backgroundColor:'#1a1a1a', borderColor:'#333'}}>→</button>
+            </div>
+
+            {/* Phase info */}
+            {currentPhase && (
+              <div className="border-2 rounded-lg p-4 mb-4" style={{backgroundColor:'#0a0a0a', borderColor:'#333'}}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-2xl font-bold" style={{color: C}}>Week {week}</div>
+                    <div className="text-xs text-gray-500 mb-2">{currentPhase.dates}</div>
+                    <div className="font-semibold" style={{color: week <= 4 ? C : '#a855f7'}}>{currentPhase.phase}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-gray-400">Target</div>
+                    <div className="font-bold text-white text-sm">{currentPhase.intensity}</div>
+                    <div className="text-xs mt-1" style={{color: week <= 4 ? C : '#a855f7'}}>{getCompletion(week).completed}/{getCompletion(week).total} done</div>
+                  </div>
+                </div>
+                <div className="mt-3 text-xs text-gray-400 italic">{currentPhase.notes}</div>
+              </div>
+            )}
+
+            {/* Workout cards */}
+            <div className="space-y-3">
+              {currentPlan.map((day, i) => (
+                <WorkoutCard key={`${week}-${i}`} day={day} isComplete={isComp(week, i)} onToggle={() => toggleComp(week, i)}/>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Log Tab */}
+        {tab === 'log' && (
+          <div>
+            {!showLog ? (
+              <button onClick={() => setShowLog(true)} className="w-full py-10 border-2 border-dashed rounded-lg flex flex-col items-center gap-2"
+                style={{borderColor: C, backgroundColor:'#1a1a1a'}}>
+                <PlusIcon s={32} style={{color: C}}/>
+                <span className="text-lg font-semibold" style={{color: C}}>Log Workout</span>
+              </button>
+            ) : (
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold" style={{color: C}}>Log Workout</h3>
+                {[['date','date','Date'],['type','','Type'],['duration','number','Duration (min)']].map(([field, type, label]) =>
+                  field === 'type' ? (
+                    <div key={field}>
+                      <label className="block text-sm font-medium mb-2 text-white">{label}</label>
+                      <select value={logData.type} onChange={e => setLogData({...logData, type: e.target.value})}
+                        className="w-full text-white rounded px-4 py-2 border-2" style={{backgroundColor:'#0a0a0a', borderColor:'#333'}}>
+                        <option value="">Select...</option>
+                        {['Hyrox Class','Running — Zone 2','Running — Tempo','Running — Intervals','Compromised Running','Upper Strength','Lower Strength','Doubles Session','Active Recovery','REST'].map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    </div>
+                  ) : (
+                    <div key={field}>
+                      <label className="block text-sm font-medium mb-2 text-white">{label}</label>
+                      <input type={type} value={logData[field]} onChange={e => setLogData({...logData, [field]: e.target.value})}
+                        className="w-full text-white rounded px-4 py-2 border-2" style={{backgroundColor:'#0a0a0a', borderColor:'#333'}}/>
+                    </div>
+                  )
+                )}
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-white">Notes</label>
+                  <textarea value={logData.notes} onChange={e => setLogData({...logData, notes: e.target.value})}
+                    placeholder="How did it feel? Key times, HR data..." rows="3"
+                    className="w-full text-white rounded px-4 py-2 border-2" style={{backgroundColor:'#0a0a0a', borderColor:'#333'}}/>
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={logWorkout} className="flex-1 px-6 py-3 rounded-lg font-semibold" style={{backgroundColor: C, color:'#000'}}>Save</button>
+                  <button onClick={() => setShowLog(false)} className="px-6 py-3 border-2 rounded-lg font-semibold text-white" style={{backgroundColor:'#1a1a1a', borderColor:'#333'}}>Cancel</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* History Tab */}
+        {tab === 'history' && (
+          <div>
+            <h3 className="text-xl font-bold mb-4" style={{color: C}}>History</h3>
+            {workouts.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <ClockIcon s={48} style={{margin:'0 auto 12px', opacity:0.4}}/>
+                <p>No workouts logged yet</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {workouts.map(w => (
+                  <div key={w.id} className="border-2 rounded-lg p-4" style={{backgroundColor:'#0a0a0a', borderColor:'#333'}}>
+                    <div className="flex justify-between mb-1">
+                      <div className="font-bold text-white">{w.type}</div>
+                      <div className="text-sm font-semibold" style={{color: C}}>{w.duration} min</div>
+                    </div>
+                    <div className="text-xs text-gray-500 mb-1">{new Date(w.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</div>
+                    {w.notes && <div className="text-sm text-gray-300 mt-2 pt-2 border-t" style={{borderColor:'#333'}}>{w.notes}</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+</script>
+</body>
+</html>
