@@ -42,7 +42,7 @@ const InfoIcon = ({s=24}) => <Icon s={s} d='<circle cx="12" cy="12" r="10"/><lin
 
 const phases = {
   1:{phase:'Stuart Doubles — Sharpen',dates:'Mon Mar 2 – Sun Mar 8',focus:'Race sharpness + Sim #1 (Sun Mar 8)',intensity:'Moderate-High',
-     notes:'4 weeks out. Sharpen station power and run pace Mon–Sat. Week ends with Sim #1 on Sunday — half run, full stations with Stuart at 85% effort.'},
+     notes:'4 weeks out. Mon-Thu train, Fri-Sat rest (wife\'s birthday Sat), Sun Sim #1 with Stuart at 85% effort. Two full rest days before the sim means legs arrive genuinely fresh.'},
   2:{phase:'Stuart Doubles — Peak',dates:'Mon Mar 9 – Sun Mar 15',focus:'Race pace + Sim #2 (Sun Mar 15)',intensity:'High',
      notes:'3 weeks out. Thursday long run dropped to protect legs for Sunday Sim #2. Saturday is a short shakeout only. Back-to-back sim weekends (Mar 8+15) are the most race-specific stimulus of the block.'},
   3:{phase:'Stuart Doubles — Taper',dates:'Mon Mar 16 – Sun Mar 22',focus:'Freshen up, stay sharp',intensity:'Moderate',
@@ -73,17 +73,17 @@ const plans = {
   // ── WEEK 1: Mon Mar 2 – Sun Mar 8 ────────────────────────────────
   1:[
     {day:'Mon Mar 2',  sessionType:'Hyrox Gym Class',duration:'60 mins',intensity:'Moderate-High',
-     notes:'Fixed Monday class. Focus on station speed today — push SkiErg and Row at 90% effort. Note your weakest station for Friday\'s lower work.\n\nKey focus: SkiErg pull power, Row drive phase, Wall Ball height consistency.' + CALF},
+     notes:'Fixed Monday class. Focus on station speed today — push SkiErg and Row at 90% effort. Note your weakest station for Thursday\'s lower work.\n\nKey focus: SkiErg pull power, Row drive phase, Wall Ball height consistency.' + CALF},
     {day:'Tue Mar 3',  sessionType:'Zone 2 Run',duration:'40 mins',intensity:'Low — Zone 2',
      notes:'Easy aerobic. 40min @ 6:00-6:15/km, HR 109-127 bpm. Conversational pace. Do not let HR drift above 130. ~6.5km.\n\nProtect this session — recovery from Monday.' + CALF},
     {day:'Wed Mar 4',  sessionType:'Upper Body Strength + Mobility',duration:'65 mins',intensity:'Moderate',
      notes:'Warm-up: 5min row @ easy pace + arm circles, band pull-aparts 2x15\n\nMain:\n• Pull-ups: 4x8-10 (weighted +5kg if comfortable)\n• DB Bench Press: 4x10 @ 28-32kg DBs\n• Single Arm DB Row: 4x12/arm @ 32-36kg\n• Push Press: 4x8 @ 50-55kg\n• Farmers Carry: 4x50m @ 32kg/hand\n\nCore (2 rounds):\n• Ab Wheel: 12 reps\n• Pallof Press: 12/side\n• Dead Bugs: 20 reps\n• Hollow Hold: 30s' + UPPER_MOBILITY},
-    {day:'Thu Mar 5',  sessionType:'Long Run',duration:'60 mins',intensity:'Moderate — Zone 2→3',
-     notes:'Progressive long run. Build into it.\n\nKm 1-4: 6:00-6:10/km (HR 115-125)\nKm 5-7: 5:50-6:00/km (HR 125-135)\nKm 8-10: 5:40-5:50/km (HR 132-140)\n\nTotal: ~10km in 60min. If HR spikes above 145, back off.\n\nBuild the habit of sustaining effort on tired legs — your biggest weakness to address.' + CALF},
-    {day:'Fri Mar 6',  sessionType:'Lower Body Strength + Mobility',duration:'70 mins',intensity:'Moderate',
+    {day:'Thu Mar 5',  sessionType:'Lower Body Strength + Mobility',duration:'70 mins',intensity:'Moderate',
      notes:'Warm-up: 5min bike + hip mobility circles, leg swings 2x15/side\n\nMain:\n• Back Squat: 4x8 @ 70-80kg\n• Romanian Deadlift: 4x10 @ 70-75kg\n• Bulgarian Split Squat: 3x10/leg @ 20kg DBs\n• Sled Push: 5x25m @ race weight\n• Sled Pull: 4x25m @ race weight\n• Eccentric Heel Drop (step): 3x15 slow — calf strengthening\n\nCore:\n• Russian Twists: 3x30\n• Dead Bugs: 3x20\n• Side Plank: 3x30s/side' + LOWER_MOBILITY},
-    {day:'Sat Mar 7',  sessionType:'Run Club — Tempo Effort',duration:'30 mins max',intensity:'High — Zone 3-4',
-     notes:'Run club session — 30min max.\n\nUse the group to push effort. Aim to work at Zone 3-4 (HR 140-155 bpm) for the majority of the run. Don\'t dictate pace — let the club pull you along.\n\n~4.5-5km @ 5:20-5:30/km depending on group pace.\n\nNo warm-up/cool-down needed beyond what the club does.' + CALF},
+    {day:'Fri Mar 6',  sessionType:'REST',duration:'',intensity:'None',
+     notes:'Full rest day.\n\nHydration 3L+, sleep 8+ hours.\n\n🦵 CALF: Elevate legs this evening. Eccentric heel drops 3x15 if pain-free — slow and controlled.'},
+    {day:'Sat Mar 7',  sessionType:'REST — Wife\'s Birthday 🎂',duration:'',intensity:'None',
+     notes:'No training today. Enjoy the day.\n\nTwo rest days back-to-back means legs will arrive at Sunday\'s sim feeling genuinely fresh — best possible prep for Sim #1.' },
     {day:'Sun Mar 8',  sessionType:'🤝 SIM #1 — Half Run, Full Stations',duration:'60-75 mins',intensity:'85% Race Effort',
      notes:'SIMULATION #1 WITH STUART — half run, full stations.\n\nFormat: Each partner runs 500m (half distance) between every station, all 8 stations completed at full race effort.\n\nWarm-up: 15min jog + full dynamic + 4x100m strides\n\nFull 8-station run-through at agreed splits.\nRuns: 500m each @ 5:20-5:25/km between every station.\n\nFocus: Station execution, transition quality, effort calibration. First real read on where you both are at race pace.\n\nDebrief: Record ALL station times. What needs work before Sim #2 in 7 days?' + CALF}
   ],
