@@ -41,14 +41,14 @@ const InfoIcon = ({s=24}) => <Icon s={s} d='<circle cx="12" cy="12" r="10"/><lin
 // Run pace from 5k 24:33 → Hyrox target 5:20-5:30/km
 
 const phases = {
-  1:{phase:'Stuart Doubles — Sharpen',dates:'Mon Mar 2 – Sun Mar 8',focus:'Race sharpness + Sim #1 (Sun Mar 8)',intensity:'Moderate-High',
-     notes:'4 weeks out. Mon-Thu train, Fri-Sat rest (wife\'s birthday Sat), Sun Sim #1 with Stuart at 85% effort. Two full rest days before the sim means legs arrive genuinely fresh.'},
-  2:{phase:'Stuart Doubles — Peak',dates:'Mon Mar 9 – Sun Mar 15',focus:'Race pace + Sim #2 (Sun Mar 15)',intensity:'High',
-     notes:'3 weeks out. Thursday long run dropped to protect legs for Sunday Sim #2. Saturday is a short shakeout only. Back-to-back sim weekends (Mar 8+15) are the most race-specific stimulus of the block.'},
-  3:{phase:'Stuart Doubles — Taper',dates:'Mon Mar 16 – Sun Mar 22',focus:'Freshen up, stay sharp',intensity:'Moderate',
-     notes:'Taper week. Hyrox class replaced with a low-impact mobility session. Volume cut 30-40%. Keep a couple of sharp efforts but legs should feel springy by Thursday.'},
+  1:{phase:'Stuart Doubles — Sharpen',dates:'Mon Mar 2 – Sun Mar 8',focus:'Race sharpness — no sim this week',intensity:'Moderate-High',
+     notes:'4 weeks out. Mon-Thu train, Fri-Sat rest (wife\'s birthday Sat), Sun active recovery. Good clean training week before sim fortnight begins.'},
+  2:{phase:'Stuart Doubles — Peak',dates:'Mon Mar 9 – Sun Mar 15',focus:'Race pace + Sim #1 (Sun Mar 15)',intensity:'High',
+     notes:'3 weeks out. Thursday long run dropped to protect legs for Sunday Sim #1. Saturday is a short shakeout only. Legs arrive fresh for Sunday.'},
+  3:{phase:'Stuart Doubles — Taper + Sim #2',dates:'Mon Mar 16 – Sun Mar 22',focus:'Sim #2 (Sun Mar 22) + taper',intensity:'Moderate → Taper',
+     notes:'Hyrox class Mon Mar 16 skipped — day after Sim #1, legs need recovery. Taper volume Mon-Sat, Sim #2 Sunday at 90% effort. This is the final race rehearsal before race day.'},
   4:{phase:'🏆 RACE WEEK — Stuart Doubles',dates:'Mon Mar 23 – Sun Mar 29',focus:'Race Day Sun Mar 29 — Sub 1:15:00',intensity:'Taper → Race',
-     notes:'Hyrox class replaced with light station activation. Minimal training all week. Carb load Fri/Sat. Race Sunday with Stuart.'},
+     notes:'Monday is full rest — day after Sim #2. Light activation replaces Hyrox class Tue. Minimal training Wed-Sat. Carb load Fri-Sat. Race Sunday with Stuart.'},
   5:{phase:'Jade Build — Recovery + Rebase',dates:'Mon Mar 30 – Sun Apr 5',focus:'Post-race recovery, ease back in',intensity:'Low-Moderate',
      notes:'3-4 days full recovery after Stuart race then gradual return. Begin thinking about mixed doubles prep with Jade.'},
   6:{phase:'Jade Build — Loading',dates:'Mon Apr 6 – Sun Apr 12',focus:'Volume + station endurance',intensity:'Moderate-High',
@@ -128,8 +128,8 @@ const plans = {
   4:[
     {day:'Mon Mar 23', sessionType:'Light Station Activation',duration:'30 mins',intensity:'Low',
      notes:'Hyrox class replaced this race week.\n\nLight touch on stations only — 60% effort maximum, NOT timed, no competition:\n• SkiErg: 2x250m (technique, easy rhythm)\n• Sled Push: 2x25m @ 130kg (feel the movement)\n• Wall Balls: 2x15 (smooth, controlled)\n\nFinish with 10min full body mobility:\n• Hip 90/90: 60s/side\n• Calf Stretch: 45s each position/leg\n• Thread the Needle: 8/side\n• Legs Up The Wall: 5min\n\nMental note: visualise smooth transitions and your run rhythm.' + CALF},
-    {day:'Tue Mar 24', sessionType:'Easy Walk/Jog',duration:'15 mins',intensity:'Very Low',
-     notes:'10-15min walk or gentle jog @ 6:30/km. Blood flow only. HR under 120.' + CALF},
+    {day:'Tue Mar 24', sessionType:'Light Station Activation',duration:'25 mins',intensity:'Low',
+     notes:'Light touch on stations only — 60% effort, NOT timed:\n• SkiErg: 2x250m (technique)\n• Sled Push: 2x25m @ 130kg (feel the movement)\n• Wall Balls: 2x15 (smooth, controlled)\n\nFinish with 10min mobility:\n• Hip 90/90: 60s/side\n• Calf Stretch: 45s each position/leg\n• Legs Up The Wall: 5min\n\nMental note: visualise smooth transitions and your run rhythm.' + CALF},
     {day:'Wed Mar 25', sessionType:'REST + Mobility',duration:'20 mins',intensity:'None',
      notes:'Complete rest from training.\n\nMobility only (20 min):\n• Full calf stretch routine: 60s each position/leg\n• Eccentric Heel Drop: 3x12 slow\n• Hip Flexor Stretch: 60s/side\n• Legs Up The Wall: 8min\n\nHydration 3-4L. Carb-rich meals begin today. Sleep 8+ hours.'},
     {day:'Thu Mar 26', sessionType:'Final Shakeout',duration:'15 mins',intensity:'Very Low',
@@ -375,7 +375,7 @@ function App() {
               <div className="text-xs text-gray-400 mb-1">Race 1 — Sun Mar 29</div>
               <div className="font-bold text-white">Stuart Doubles</div>
               <div className="text-lg font-bold" style={{color:C}}>Sub 1:15:00</div>
-              <div className="text-xs text-gray-500 mt-1">Sims: Sun Mar 8 + Sun Mar 15 | Sat = Run Club (30 min)</div>
+              <div className="text-xs text-gray-500 mt-1">Sims: Sun Mar 15 + Sun Mar 22</div>
             </div>
             <div className="border-2 rounded-lg p-3" style={{borderColor:'#a855f7',backgroundColor:'#1a1a1a'}}>
               <div className="text-xs text-gray-400 mb-1">Race 2 — Fri May 2</div>
@@ -433,7 +433,7 @@ function App() {
                 {[...Array(9)].map((_,i)=>{
                   const w=i+1;
                   const c=getCompletion(w);
-                  const label=(w===1||w===2)?'🤝':(w===4||w===9)?'🏆':w===8?'🔥':'';
+                  const label=(w===2||w===3)?'🤝':(w===4||w===9)?'🏆':w===8?'🔥':'';
                   return (
                     <button key={w} onClick={()=>setWeek(w)}
                       className="flex-shrink-0 px-3 py-2 rounded-lg font-semibold text-sm border-2"
