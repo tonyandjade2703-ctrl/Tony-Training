@@ -59,8 +59,18 @@ const phases = {
      notes:'3 weeks out. Compromised running sessions mid-week. Race-pace Saturday. Push the ceiling.'},
   8:{phase:'Jade Doubles — Peak + Sim',dates:'Mon Apr 20 – Sun Apr 26',focus:'🔥 Full sim with Jade (Sat Apr 25)',intensity:'Very High',
      notes:'2 weeks out. Full mixed doubles simulation Saturday. Dial in transitions and effort.'},
-  9:{phase:'🏆 RACE WEEK — Jade Mixed Doubles',dates:'Mon Apr 27 – Fri May 2',focus:'Race Day Fri May 2 — Sub 1:15:00',intensity:'Taper → Race',
-     notes:'Hyrox class replaced with light activation. Minimal training. Race Friday May 2 with Jade.'}
+  9:{phase:'🏆 RACE WEEK — Jade Mixed Doubles',dates:'Mon Apr 27 – Sat May 2',focus:'Race Day Sat May 2 — Sub 1:15:00',intensity:'Taper → Race',
+     notes:'Hyrox class replaced with light activation. Minimal training. Race Saturday May 2 with Jade.'},
+  10:{phase:'10k Block — Recovery + Return',dates:'Sun May 3 – Sat May 10',focus:'Post-doubles recovery, swift return',intensity:'Low',
+     notes:'5 weeks to 10k on Jun 7. Only 2 doubles races in the legs — recovery window is shorter than a full race season. Mon-Tue rest, Wed-Sat easy running and light strength. Speed work begins next week.'},
+  11:{phase:'10k Block — Base + Strides',dates:'Sun May 10 – Sat May 16',focus:'Aerobic base + leg speed introduction',intensity:'Low-Moderate',
+     notes:'4 weeks out. Reestablish running rhythm. Introduce strides and short hill reps to begin firing fast-twitch fibres without the pounding of full intervals. Hyrox class Monday maintained for fitness base.'},
+  12:{phase:'10k Block — Threshold Build',dates:'Sun May 17 – Sat May 23',focus:'Tempo runs + 1km repeats at target pace',intensity:'Moderate-High',
+     notes:'3 weeks out. Key week. 1km repeats at 4:55-5:00/km (target race pace). Thursday tempo. Saturday run club used as a hard effort. Calf protocol every session.'},
+  13:{phase:'10k Block — Peak + Sharpening',dates:'Sun May 24 – Sat May 30',focus:'Race pace confidence, final hard week',intensity:'High',
+     notes:'2 weeks out. Longer tempo run Sunday, final hard interval session Wednesday, race pace run club Saturday. After Saturday this week — taper begins.'},
+  14:{phase:'🏆 10k Race Week',dates:'Sun May 31 – Sun Jun 7',focus:'Race Day Sun Jun 7 — Sub 50:00',intensity:'Taper → Race',
+     notes:'Volume drops sharply. Keep a couple of sharp efforts Mon-Tue, then easy/rest Wed-Sat. Race Sunday. Sub 50:00 = 4:59/km pace.'}
 };
 
 const plans = {
@@ -335,7 +345,7 @@ function App() {
             <FlameIcon s={40} style={{color:C}}/>
             <div>
               <h1 className="text-3xl font-bold" style={{color:C}}>Tony's Training</h1>
-              <p className="text-sm text-gray-400">Hyrox Doubles 2026 — 9-Week Program</p>
+              <p className="text-sm text-gray-400">Hyrox Doubles + 10k — 14-Week Program</p>
             </div>
           </div>
           <div className="border-2 rounded-lg p-4 mb-4" style={{backgroundColor:'#1a1a1a',borderColor:'#333'}}>
@@ -345,18 +355,24 @@ function App() {
               <div><div className="text-gray-500 text-xs">Max HR</div><div className="text-white font-semibold">181 bpm</div></div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="border-2 rounded-lg p-3" style={{borderColor:C,backgroundColor:'#1a1a1a'}}>
               <div className="text-xs text-gray-400 mb-1">Race 1 — Sun Mar 29</div>
-              <div className="font-bold text-white">Stuart Doubles</div>
-              <div className="text-lg font-bold" style={{color:C}}>Sub 1:15:00</div>
-              <div className="text-xs text-gray-500 mt-1">Sims: Sun Mar 15 + Sun Mar 22</div>
+              <div className="font-bold text-white text-sm">Stuart Doubles</div>
+              <div className="font-bold" style={{color:C}}>Sub 1:15</div>
+              <div className="text-xs text-gray-500 mt-1">Sims: Mar 15 + Mar 22</div>
             </div>
             <div className="border-2 rounded-lg p-3" style={{borderColor:'#a855f7',backgroundColor:'#1a1a1a'}}>
               <div className="text-xs text-gray-400 mb-1">Race 2 — Sat May 2</div>
-              <div className="font-bold text-white">Jade Mixed Doubles</div>
-              <div className="text-lg font-bold" style={{color:'#a855f7'}}>Sub 1:15:00</div>
-              <div className="text-xs text-gray-500 mt-1">Jade: Solo 1:27 · Doubles PR 1:19</div>
+              <div className="font-bold text-white text-sm">Jade Mixed Doubles</div>
+              <div className="font-bold" style={{color:'#a855f7'}}>Sub 1:15</div>
+              <div className="text-xs text-gray-500 mt-1">Jade PR 1:19</div>
+            </div>
+            <div className="border-2 rounded-lg p-3" style={{borderColor:'#22d3ee',backgroundColor:'#1a1a1a'}}>
+              <div className="text-xs text-gray-400 mb-1">Race 3 — Sun Jun 7</div>
+              <div className="font-bold text-white text-sm">10k</div>
+              <div className="font-bold" style={{color:'#22d3ee'}}>Sub 50:00</div>
+              <div className="text-xs text-gray-500 mt-1">PB: 50:16 (Oct)</div>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3 mb-4">
@@ -369,7 +385,7 @@ function App() {
               <div className="text-xs text-gray-400">This Week</div>
             </div>
             <div className="border-2 rounded-lg p-3 text-center" style={{backgroundColor:'#1a1a1a',borderColor:'#333'}}>
-              <div className="text-2xl font-bold" style={{color:C}}>{Math.max(0,10-week)}</div>
+              <div className="text-2xl font-bold" style={{color:C}}>{Math.max(0,15-week)}</div>
               <div className="text-xs text-gray-400">Weeks Left</div>
             </div>
           </div>
@@ -387,23 +403,27 @@ function App() {
         {tab==='plan'&&<div>
           <HRReference/>
           <div className="flex gap-2 mb-4">
-            <button onClick={()=>setWeek(1)} className="flex-1 py-2 rounded-lg text-sm font-semibold border-2"
-              style={isPhase1?{backgroundColor:C,borderColor:C,color:'#000'}:{backgroundColor:'#1a1a1a',borderColor:'#333',color:'#666'}}>
-              Phase 1: Stuart (Mar 29)
+            <button onClick={()=>setWeek(1)} className="flex-1 py-2 rounded-lg text-xs font-semibold border-2"
+              style={week<=4?{backgroundColor:C,borderColor:C,color:'#000'}:{backgroundColor:'#1a1a1a',borderColor:'#333',color:'#666'}}>
+              Phase 1<br/>Stuart
             </button>
-            <button onClick={()=>setWeek(5)} className="flex-1 py-2 rounded-lg text-sm font-semibold border-2"
-              style={!isPhase1?{backgroundColor:'#a855f7',borderColor:'#a855f7',color:'#fff'}:{backgroundColor:'#1a1a1a',borderColor:'#333',color:'#666'}}>
-              Phase 2: Jade (May 2)
+            <button onClick={()=>setWeek(5)} className="flex-1 py-2 rounded-lg text-xs font-semibold border-2"
+              style={(week>=5&&week<=9)?{backgroundColor:'#a855f7',borderColor:'#a855f7',color:'#fff'}:{backgroundColor:'#1a1a1a',borderColor:'#333',color:'#666'}}>
+              Phase 2<br/>Jade
+            </button>
+            <button onClick={()=>setWeek(10)} className="flex-1 py-2 rounded-lg text-xs font-semibold border-2"
+              style={week>=10?{backgroundColor:'#22d3ee',borderColor:'#22d3ee',color:'#000'}:{backgroundColor:'#1a1a1a',borderColor:'#333',color:'#666'}}>
+              Phase 3<br/>10k
             </button>
           </div>
           <div className="flex items-center gap-2 mb-5">
             <button onClick={()=>setWeek(Math.max(1,week-1))} disabled={week===1}
               className="px-3 py-2 border-2 rounded text-white disabled:opacity-30" style={{backgroundColor:'#1a1a1a',borderColor:'#333'}}>←</button>
             <div className="flex-1 flex gap-2 overflow-x-auto pb-1">
-              {[...Array(9)].map((_,i)=>{
+              {[...Array(14)].map((_,i)=>{
                 const w=i+1;
                 const c=getCompletion(w);
-                const lbl=(w===2||w===3)?'🤝':(w===4||w===9)?'🏆':w===8?'🔥':'';
+              const lbl=(w===2||w===3)?'🤝':(w===4||w===9)?'🏆':w===8?'🔥':w===14?'🏃':'';
                 return <button key={w} onClick={()=>setWeek(w)}
                   className="flex-shrink-0 px-3 py-2 rounded-lg font-semibold text-sm border-2"
                   style={week===w?{backgroundColor:C,borderColor:C,color:'#000'}:{backgroundColor:'#1a1a1a',borderColor:'#333',color:'#fff'}}>
@@ -412,7 +432,7 @@ function App() {
                 </button>;
               })}
             </div>
-            <button onClick={()=>setWeek(Math.min(9,week+1))} disabled={week===9}
+            <button onClick={()=>setWeek(Math.min(14,week+1))} disabled={week===14}
               className="px-3 py-2 border-2 rounded text-white disabled:opacity-30" style={{backgroundColor:'#1a1a1a',borderColor:'#333'}}>→</button>
           </div>
           {currentPhase&&<div className="border-2 rounded-lg p-4 mb-4" style={{backgroundColor:'#0a0a0a',borderColor:'#333'}}>
