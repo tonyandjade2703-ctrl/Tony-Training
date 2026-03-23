@@ -30,12 +30,6 @@ const ClockIcon= ({s=24}) => <Icon s={s} d='<circle cx="12" cy="12" r="10"/><pol
 const FlameIcon= ({s=24}) => <Icon s={s} d='<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'/>;
 const InfoIcon = ({s=24}) => <Icon s={s} d='<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'/>;
 
-// HR: Z1<109 | Z2 109-127 | Z3 127-145 | Z4 145-163 | Z5 163-181
-// Sims: Sun Mar 15 (W2 SIM#1) + Sun Mar 22 (W3 SIM#2)
-// W1 Sun Mar 8 = Active Recovery (NO SIM)
-// W3 Mon Mar 16 = REST (day after Sim#1, Sim#2 same week Sunday)
-// W4 Mon Mar 23 = REST (day after Sim#2)
-
 const CALF = '\n\n🦵 CALF & VEIN CARE:\n• Wear compression socks during and after session\n• Elevate legs 10min post-session\n• Eccentric heel drops: 3x15 slow lower on step edge\n• Avoid hard surfaces — treadmill or track preferred\n• Ice calves 10min if any swelling or heat after running';
 
 const UPPER_MOBILITY = '\n\n🧘 UPPER MOBILITY (10 min):\n• Thread the Needle: 10 reps/side\n• Wall Slides: 3x10\n• Doorway Pec Stretch: 60s each arm\n• Lat Stretch: 30s x3\n• Wrist Circles + Flexor Stretch: 60s\n• Neck Rolls + Upper Trap Stretch: 45s/side\n• Child\'s Pose with arm reach: 60s';
@@ -49,8 +43,8 @@ const phases = {
      notes:'3 weeks out. Thursday long run dropped to protect legs for Sunday Sim #1. Saturday is a short shakeout only. Legs arrive fresh for Sunday.'},
   3:{phase:'Stuart Doubles — Taper + SIM #2',dates:'Mon Mar 16 – Sun Mar 22',focus:'SIM #2 (Sun Mar 22) + taper',intensity:'Moderate → Taper',
      notes:'Hyrox class Mon Mar 16 skipped — day after Sim #1, Sim #2 this Sunday. Taper volume Mon-Sat. SIM #2 Sunday at 90% — final race rehearsal.'},
-  4:{phase:'🏆 RACE WEEK — Stuart Doubles',dates:'Mon Mar 23 – Sun Mar 29',focus:'Race Day Sun Mar 29 — Sub 1:15:00',intensity:'Taper → Race',
-     notes:'Mon is full rest — day after Sim #2. Light activation Tue. Minimal training Wed-Sat. Carb load Fri-Sat. Race Sunday with Stuart.'},
+  4:{phase:'🏆 RACE WEEK — Stuart Doubles',dates:'Mon Mar 23 – Sun Mar 29',focus:'Race Day Sun Mar 29 — 6:10pm start — Sub 1:15:00',intensity:'Taper → Race',
+     notes:'Mon is full rest — day after Sim #2. Light activation Tue. Minimal training Wed-Sat. Carb load from Wed. Race Sunday 6:10pm with Stuart. Evening start — front-load all fueling, blackout window 1-3pm on race day.'},
   5:{phase:'Jade Build — Recovery + Rebase',dates:'Mon Mar 30 – Sun Apr 5',focus:'Post-race recovery, ease back in',intensity:'Low-Moderate',
      notes:'3-4 days full recovery after Stuart race then gradual return. Begin thinking about mixed doubles prep with Jade.'},
   6:{phase:'Jade Build — Loading',dates:'Mon Apr 6 – Sun Apr 12',focus:'Volume + station endurance',intensity:'Moderate-High',
@@ -129,22 +123,22 @@ const plans = {
      notes:'SIMULATION #2 WITH STUART — half run, full stations.\n\nFormat: 500m runs per person, all 8 stations at full race effort.\n\nWarm-up: 10min easy jog + light dynamic.\n\nRuns: 500m each @ 5:20-5:25/km.\n\nFocus: Higher intensity than Sim #1. Final race rehearsal before March 29.\n\nDebrief: Compare all times to SIM #1. Lock in race strategy.' + CALF}
   ],
 
-  // W4: Mon Mar 23 – Sun Mar 29 | REST MON + RACE SUNDAY
+  // W4: Mon Mar 23 – Sun Mar 29 | RACE WEEK — 6:10pm START
   4:[
     {day:'Mon Mar 23', sessionType:'REST — Post Sim #2', duration:'', intensity:'None',
-     notes:'Full rest — day after SIM #2. No station work today.\n\nHydration 3L+. Carb-rich meals begin. Sleep 8+ hours.\n\n🦵 CALF: Elevate legs. Heel drops 3x15 if pain-free.'},
+     notes:'Full rest — day after SIM #2. No station work today.\n\nHydration 3-4L. Carb-rich meals begin today — rice, pasta, oats, potatoes. Keep fat and fibre moderate. Sleep 8+ hours.\n\n🦵 CALF: Elevate legs. Heel drops 3x15 if pain-free.'},
     {day:'Tue Mar 24', sessionType:'Light Station Activation', duration:'25 mins', intensity:'Low',
-     notes:'60% effort, NOT timed:\n• SkiErg: 2x250m technique\n• Sled Push: 2x25m @ 130kg\n• Wall Balls: 2x15\n\n10min mobility after:\n• Hip 90/90: 60s/side\n• Calf Stretch: 45s each\n• Legs Up The Wall: 5min' + CALF},
-    {day:'Wed Mar 25', sessionType:'REST + Mobility', duration:'', intensity:'None',
-     notes:'Complete rest.\n\nMobility only:\n• Calf Stretch: 60s each position/leg\n• Eccentric Heel Drop: 3x12 slow\n• Hip Flexor Stretch: 60s/side\n• Legs Up The Wall: 8min\n\nHydration 3-4L. Sleep 8+ hours.'},
+     notes:'60% effort, NOT timed, no competition:\n• SkiErg: 2x250m — technique and rhythm only\n• Sled Push: 2x25m @ 130kg — feel the movement\n• Wall Balls: 2x15 — smooth and controlled\n\n10min mobility after:\n• Hip 90/90: 60s/side\n• Calf Stretch: 45s each position/leg\n• Legs Up The Wall: 5min\n\n🦵 CALF: Eccentric heel drops 3x12 slow. Compression socks on immediately after.'},
+    {day:'Wed Mar 25', sessionType:'REST + Mobility', duration:'20 mins', intensity:'None',
+     notes:'Complete rest from training.\n\nMobility only (20 min):\n• Calf Stretch: 60s each position/leg\n• Eccentric Heel Drop: 3x12 slow\n• Hip Flexor Stretch: 60s/side\n• Legs Up The Wall: 8min\n\n🍝 FUELING: Carb-rich meals all day — 6-8g carbs per kg bodyweight target (530-700g). Rice, pasta, potatoes, bread, bananas. Protein at every meal. No alcohol from today.\n\nHydration 3-4L. Sleep 8+ hours.'},
     {day:'Thu Mar 26', sessionType:'Final Shakeout', duration:'15 mins', intensity:'Very Low',
-     notes:'Jog 10min @ 6:30/km + 3x80m strides.\n\nLegs should feel alive and powerful.' + CALF},
+     notes:'Jog 10min @ 6:30/km + 3x80m strides building to race pace feel.\n\nLegs should feel alive and powerful. If anything feels off, skip and walk instead.\n\n🍝 FUELING: Same carb focus as yesterday. Limit fibre-heavy foods from this evening (salads, pulses, cruciferous veg).\n\nHydration 3-4L. No new foods.\n\n🦵 CALF: Eccentric heel drops 3x10. Compression socks all day.'},
     {day:'Fri Mar 27', sessionType:'REST — Carb Load', duration:'', intensity:'None',
-     notes:'COMPLETE REST.\n\nCarb load: pasta/rice + protein. Hydrate 4L.\n\nRace kit:\n• Bib, shoes, socks, shorts, shirt\n• Watch charged, gels ready\n• Compression socks\n\nConfirm meet time with Stuart.'},
+     notes:'COMPLETE REST. Walk 10min max.\n\n🍝 FUELING — THREE SOLID MEALS:\n• Breakfast: porridge + banana + eggs\n• Lunch: pasta/rice + lean protein\n• Dinner (6-7pm): pasta/rice + chicken. Familiar food only — no experimenting.\n\nSnacks: rice cakes, bananas, medjool dates if hungry.\n\nHydrate 4L across the day.\n\n📋 RACE ADMIN TODAY:\n• Confirm meet point and logistics with Stuart\n• Check race kit: bib, shoes, socks, shorts, shirt, watch (charged), compression socks\n• Gels ready (1 for 15min pre-race, 1 spare)\n\n🦵 CALF: Elevate legs this afternoon. Gentle calf stretch before bed.'},
     {day:'Sat Mar 28', sessionType:'REST — Race Eve', duration:'', intensity:'None',
-     notes:'ZERO activity. Carb load dinner 6pm. Bed by 9pm.\n\nVisualise every station.\n\n🦵 CALF: Elevate legs this afternoon. Gentle calf stretch before bed.'},
-    {day:'Sun Mar 29', sessionType:'🏆 RACE DAY — Stuart Doubles', duration:'Target: Sub 1:15:00', intensity:'RACE EFFORT',
-     notes:'THIS IS IT. 🔥\n\nPRE-RACE:\n• Wake 4hrs before start\n• Porridge + banana + coffee\n• Arrive 90min early\n• Warm-up: 10min jog, full dynamic, 4x100m strides\n• Compression socks on before warm-up\n• Gel 15min before start\n\nRACE:\n• Execute the plan from both sims\n• Stations 1-4: controlled confidence\n• Stations 5-8: everything you have\n• Call switches clearly, encourage Stuart\n\n🎯 TARGET: SUB 1:15:00\n\nLeave nothing on the floor. 💪'}
+     notes:'ZERO training activity. 5min walk only if restless.\n\n🍝 FUELING:\n• Breakfast and lunch as normal — carb-rich, familiar\n• Dinner (6-7pm): pasta/rice + lean protein. Sensible portions — you\'re topping up, not stuffing.\n• Avoid high-fibre foods this evening: no salads, pulses, or heavy veg.\n\nHydrate 3-4L across the day.\n\n📋 FINAL PREP:\n• Lay out ALL race kit this evening\n• Set 3 alarms\n• Text Stuart — confirm tomorrow\'s plan\n• Bed by 10pm\n\n🦵 CALF: Elevate legs this afternoon. Gentle calf stretch before bed.\n\n🧠 Visualise every station. You\'ve done the work.'},
+    {day:'Sun Mar 29', sessionType:'🏆 RACE DAY — Stuart Doubles (6:10pm)', duration:'Target: Sub 1:15:00', intensity:'RACE EFFORT',
+     notes:'RACE START: 6:10pm — evening start, full day to fuel and prepare.\n\n━━━━━━━━━━━━━━━━━━━━━\n⏰ RACE DAY SCHEDULE\n━━━━━━━━━━━━━━━━━━━━━\n\n6:00-6:30am — WAKE UP + BIG BREAKFAST\nThis is your most important meal of the day. Front-load everything.\n• Porridge + banana + honey, or eggs on toast + fruit\n• Coffee if that\'s your routine — do NOT skip it\n• 500ml water\n\n7:00am — DEPART\nTake snacks with you: banana, rice cakes, medjool dates.\n\n9:00-10:00am — MID-MORNING SNACK\n• Banana, bagel, or rice cakes with peanut butter\n• Sip water steadily — 500ml by midday\n\n12:30-1:00pm — LAST PROPER MEAL ⚠️\nFinish eating by 1:00pm — this is the final substantial meal before the blackout window. Make it count.\n• Rice or pasta + lean protein (chicken/tuna)\n• Substantial but not heavy — avoid rich sauces, cream, or high-fibre sides\n\n⛔ 1:00pm-3:00pm — FUELING WINDOW CLOSED\nSip water only if accessible.\n\n3:00pm — BACK ON — SNACK IMMEDIATELY\nThis bridges the gap to race start ~3hrs out.\n• Banana + 2-3 medjool dates, or rice cakes\n• 500ml water or electrolyte drink\n\n4:30pm — FINAL TOP-UP\n• Half a banana or 2-3 dates if energy feels low\n• 200-300ml water or electrolyte drink\n• No gels needed yet — save for pre-race\n\n4:30-5:15pm — WARM-UP\n• 10min easy jog\n• Full dynamic mobility: leg swings, hip circles, high knees, glute activation\n• 2-3 x 30s bursts at race pace to prime the nervous system\n• Compression socks on before warm-up\n\n5:15-5:30pm — FINAL PREP\n• Walk the layout/transitions if possible\n• Final race strategy chat with Stuart\n• Gel 15min before start (5:55pm)\n\n5:45pm — CALL-UP ZONE\nKit on, compression socks on, mindset locked.\n\n6:10pm — RACE START 🔥\n\n━━━━━━━━━━━━━━━━━━━━━\n🏁 DURING THE RACE\n━━━━━━━━━━━━━━━━━━━━━\nSub-75min effort — no mid-race fueling needed.\nSmall sips of water at stations if needed.\nIf you feel a dip mid-race (possible after long day): 1 gel at halfway — only if gut is trained to it.\n\nStations 1-4: controlled confidence\nStations 5-8: everything you have\nCall switches clearly, encourage Stuart.\n\n🎯 TARGET: SUB 1:15:00\n\n━━━━━━━━━━━━━━━━━━━━━\n✅ POST-RACE\n━━━━━━━━━━━━━━━━━━━━━\n• Keep moving 5-10min (both of you)\n• Carbs + protein within 30min\n• Hydrate 500ml+ in first hour\n• 🦵 Compression socks on, elevate legs\n• Celebrate — you\'ve earned it 🥇'}
   ],
 
   // W5: Mon Mar 30 – Sun Apr 5 | POST-RACE RECOVERY
@@ -302,7 +296,7 @@ function HRReference() {
 
 function App() {
   const [tab,setTab]=useState('plan');
-  const [week,setWeek]=useState(1);
+  const [week,setWeek]=useState(4);
   const [comp,setComp]=useState({});
   const [workouts,setWorkouts]=useState([]);
   const [showLog,setShowLog]=useState(false);
@@ -328,7 +322,6 @@ function App() {
   const totalDone=Object.values(comp).filter(Boolean).length;
   const currentPhase=phases[week];
   const currentPlan=plans[week]||[];
-  const isPhase1=week<=4;
 
   const logWorkout=()=>{
     if(!logData.type) return;
@@ -360,7 +353,7 @@ function App() {
               <div className="text-xs text-gray-400 mb-1">Race 1 — Sun Mar 29</div>
               <div className="font-bold text-white text-sm">Stuart Doubles</div>
               <div className="font-bold" style={{color:C}}>Sub 1:15</div>
-              <div className="text-xs text-gray-500 mt-1">Sims: Mar 15 + Mar 22</div>
+              <div className="text-xs text-gray-500 mt-1">Start: 6:10pm</div>
             </div>
             <div className="border-2 rounded-lg p-3" style={{borderColor:'#a855f7',backgroundColor:'#1a1a1a'}}>
               <div className="text-xs text-gray-400 mb-1">Race 2 — Sat May 2</div>
@@ -423,7 +416,7 @@ function App() {
               {[...Array(14)].map((_,i)=>{
                 const w=i+1;
                 const c=getCompletion(w);
-              const lbl=(w===2||w===3)?'🤝':(w===4||w===9)?'🏆':w===8?'🔥':w===14?'🏃':'';
+                const lbl=(w===2||w===3)?'🤝':(w===4||w===9)?'🏆':w===8?'🔥':w===14?'🏃':'';
                 return <button key={w} onClick={()=>setWeek(w)}
                   className="flex-shrink-0 px-3 py-2 rounded-lg font-semibold text-sm border-2"
                   style={week===w?{backgroundColor:C,borderColor:C,color:'#000'}:{backgroundColor:'#1a1a1a',borderColor:'#333',color:'#fff'}}>
